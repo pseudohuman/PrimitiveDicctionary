@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 
 namespace ConsoleApp2
 {
@@ -9,11 +10,9 @@ namespace ConsoleApp2
         static string path = @"D:\text.txt";
         static void Main(string[] args)
         {
+            Console.OutputEncoding = new UnicodeEncoding();
             Dictionary<string, string> dict = LoadDictionary();
-            Console.Write(">");
-            
             ReadString(dict);
-            
 
         }
 
@@ -21,19 +20,20 @@ namespace ConsoleApp2
         {
             while (true)
             {
+                Console.Write(">");
                 string line = Console.ReadLine();
                 char startChar = line[0];
                 if (startChar == '+')
                 {
                     if (line.Length > 1)
                     {
-                        string str = line.Substring(1);
-                        dict.Add(str.Split('=')[0], str.Split('=')[1]);
+                        AddArticle(line.Substring(1),dict);
+                       
                     }
                     else
                     {
                         Console.WriteLine("Please enter article in form name=article");
-                        ReadArticle(Console.ReadLine(),dict) ;
+                        AddArticle(Console.ReadLine(),dict) ;
                     }
                 }
                 else if(startChar == '-')
@@ -63,8 +63,8 @@ namespace ConsoleApp2
 
         private static void ShowDictionary(Dictionary<string, string> dict,string str)
         {
-            
-                Console.WriteLine($"{dict[str]}");
+            if (dict.ContainsKey(str)) Console.WriteLine($"{dict[str]}");
+            else Console.WriteLine("Dictionary doesn`t  contain article on this name");
            
         }
 
@@ -85,9 +85,29 @@ namespace ConsoleApp2
             dict.Remove(str);
         }
 
-        private static void ReadArticle(string str, Dictionary<string, string> dict)
+        private static void AddArticle(string str, Dictionary<string, string> dict)
         {
-            dict.Add(str.Split('=')[0], str.Split('=')[1]);
+            
+            string[] nameValue = str.Split('=');
+            var name = nameValue[0];
+            if (dict.ContainsKey(name))
+            {
+                Console.WriteLine("Article with that name alredy exist.Do you want to rewrite it?");
+                var ans = Console.ReadLine();
+                if(ans=="y"){
+                    dict.Remove(name);
+                }
+                else if(ans=="n")
+                {
+                    ReadString(dict);
+                }
+                else
+                {
+                    Console.WriteLine("Please answer yes or no");
+                }
+            }
+            dict.Add(name, nameValue[1]); 
+            
         }
 
         private static Dictionary<string, string> LoadDictionary()
